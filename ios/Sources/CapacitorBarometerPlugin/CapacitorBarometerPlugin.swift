@@ -78,9 +78,7 @@ public class CapacitorBarometerPlugin: CAPPlugin, CAPBridgedPlugin {
             ]
 
             self.latestMeasurement = measurement
-            DispatchQueue.main.async {
-                self.notifyListeners("measurement", data: measurement)
-            }
+            self.notifyListeners("measurement", data: measurement)
         }
 
         updatesActive = true
