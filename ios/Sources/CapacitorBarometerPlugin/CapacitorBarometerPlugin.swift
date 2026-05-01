@@ -62,14 +62,13 @@ public class CapacitorBarometerPlugin: CAPPlugin, CAPBridgedPlugin {
 
             let pressureHectoPascal = data.pressure.doubleValue * 10.0
             let relativeAltitudeMeters = data.relativeAltitude.doubleValue
-            // CMAltimeterData.timestamp is seconds since device boot INCLUDING
-            // sleep time (CLOCK_MONOTONIC). ProcessInfo.systemUptime excludes sleep
-            // (CLOCK_UPTIME_RAW), so using it here causes a growing offset equal to
-            // total device sleep since boot. Use the matching monotonic clock.
-            var ts = timespec()
-            clock_gettime(CLOCK_MONOTONIC, &ts)
-            let monotonicNow = Double(ts.tv_sec) + Double(ts.tv_nsec) / 1_000_000_000.0
-            let sensorAge = monotonicNow - data.timestamp
+            // CMAltimeterData.timestamp is seconds since device boot (system uptime).
+            // Convert to Unix epoch by computing the age of the sample relative to
+            // the current uptime and subtracting that from the current wall clock.
+            // This preserves the sensor's true measurement time instead of using
+            // Date() which reflects when the callback fires — a critical difference
+            // when iOS delivers batched updates after backgrounding.
+            let sensorAge = ProcessInfo.processInfo.systemUptime - data.timestamp
             let timestamp = (Date().timeIntervalSince1970 - sensorAge) * 1000
 
             let measurement: [String: Any] = [
