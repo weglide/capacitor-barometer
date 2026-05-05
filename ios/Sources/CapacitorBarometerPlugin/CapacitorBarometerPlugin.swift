@@ -69,7 +69,7 @@ public class CapacitorBarometerPlugin: CAPPlugin, CAPBridgedPlugin {
             // Date() which reflects when the callback fires — a critical difference
             // when iOS delivers batched updates after backgrounding.
             let sensorAge = ProcessInfo.processInfo.systemUptime - data.timestamp
-            let timestamp = (Date().timeIntervalSince1970 - sensorAge) * 1000
+            let timestamp = ((Date().timeIntervalSince1970 - sensorAge) * 1000).rounded()
 
             let measurement: [String: Any] = [
                 "pressure": pressureHectoPascal,
